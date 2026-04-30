@@ -1,11 +1,3 @@
-// document.addEventListener("DOMContentLoaded", async () => {
-//     const label = document.querySelector("h1");
-//     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-//     const movieTitle = extractMovieName(tab.title, tab.url);
-//     label.textContent = `${movieTitle}`;
-// });
-
-
 document.querySelector("button").addEventListener("click", async () => {
     const button = document.querySelector("button");
 
@@ -29,15 +21,16 @@ document.querySelector("button").addEventListener("click", async () => {
         func: () => window.__extractedContent,
     });
 
-    console.log("hello " + content);
+    // console.log("hello " + content);
+    // readbility works perfectly!
 
     
-//   const response = await chrome.runtime.sendMessage({
-//     type: "FACT_CHECK",
-//     text: content
-//   });
+    const response = await chrome.runtime.sendMessage({
+        type: "FACT_CHECK",
+        text: content
+    });
 
-//   showResult(response.score);
-//   button.disabled = false;
-//   button.textContent = "Check Bias";
+    showResult(response.score);
+    // button.disabled = false;
+    // button.textContent = "Check Bias";
 });

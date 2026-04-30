@@ -51,7 +51,7 @@ async function detectBias(text) {
 
     const score = data.choices[0].message.content.trim().toLowerCase();
 
-    console.log(score);
+    console.log("score" + score);
     return { score: score };
   } catch (err) {
     return { score: "error" };

@@ -7,12 +7,24 @@
 </head>
 </head>
 <body>
-    <div>
-        <h1></h1>
-        <br>
-        <button class="btn-primary">Bias</button> 
-        <br>
-        <div class="verdict-card"></div>
+    <div class="wrapper">
+        <div>
+            <h1>Bias Scorer</h1>
+            <br>
+            <div class="verdict-card">
+                <div class="gauge-container">
+                    <canvas id="gaugeCanvas" width="500" height="260" style="width:100%;height:100%;display:block;margin:0 auto;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-info" style="justify-content: center; align-items: center;">
+            <h1>Cross Reference</h1>
+            <div class="divider"></div>
+            <div class="info-placeholder">
+                <p>Lorem blah blah blah</p>
+            </div>
+        </div>
     </div>
     <script src="popup.js"></script>
 </body>

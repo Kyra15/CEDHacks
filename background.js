@@ -17,6 +17,24 @@ chrome.runtime.onInstalled.addListener(() => {
 // });
 
 
+function preprocessText(text, maxChars = 3500) {
+
+  if (text.length <= maxChars) return text;
+
+  const third = Math.floor(maxChars / 3);
+  const beginning = text.slice(0, third);
+  const middle = text.slice(
+    Math.floor(text.length / 2) - third / 2,
+    Math.floor(text.length / 2) + third / 2
+  );
+  const end = text.slice(-third);
+
+  const fullText = `${beginning}\n\n[...]\n\n${middle}\n\n[...]\n\n${end}`
+  console.log("helllo" + fullText + fullText.length)
+
+  return fullText;
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "FACT_CHECK") {
     detectBias(message.text).then(sendResponse);
@@ -25,35 +43,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function detectBias(text) {
-  try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        max_tokens: 10,
-        temperature: 0,
-        messages: [{
-          role: "user",
-          content: `Is there bias within this news source? Give it a 'score' out of 100: 0 for completely biased opinion writing, and 100 for completely unbiased, true facts. Return only an integer from 0-100. Source: "${text}"`
-        }]
-      })
-    });
+    trimmed = preprocessText(text);
+    try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            max_tokens: 10,
+            temperature: 0.5,
+            messages: [{
+            role: "user",
+            content: `Is there bias within this news source? Score 0-100 (0=completely biased, 100=completely unbiased). Source: "${trimmed}". Return ONLY an integer. `
+            }]
+        })
+        });
 
-    console.log("Response status:", response.status);
+        // add heres why section
 
-    const data = await response.json();
+        console.log("Response status:", response.status);
 
-    console.log("Full response:", JSON.stringify(data));
+        const data = await response.json();
 
-    const score = data.choices[0].message.content.trim().toLowerCase();
+        console.log("Full response:", JSON.stringify(data));
 
-    console.log("score" + score);
-    return { score: score };
-  } catch (err) {
-    return { score: "error" };
-  }
+        const raw = data.choices[0].message.content.trim();
+        const score = parseInt(raw.match(/\d+/)?.[0] ?? "50", 10);
+
+        console.log("score" + score);
+        return { score: score };
+    } catch (err) {
+        return { score: "error" };
+    }
 }
